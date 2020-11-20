@@ -1,25 +1,22 @@
 package org.tof.example;
 
-import com.sun.jna.Library;
 import com.sun.jna.Native;
 
 public class DoTheJob {
 
-    public interface NativeLibraryInterface extends Library {
-        // library name:
-        // - linux: 'libdothejob.so'
-        // - mac: 'libdothejob.dylib'
-        NativeLibraryInterface nativeLib = Native.load("dothejob", NativeLibraryInterface.class);
+    private static native String doTheJobNative();
 
-        String doTheJobNative();
-        int doTheJobArrayNative(byte[] inputArray, int[] outputArray, int arraySize);
+    private static native int doTheJobArrayNative(byte[] inputArray, int[] outputArray, int arraySize);
+
+    static {
+        Native.register("dothejob");
     }
 
     String doTheJob() {
-        return NativeLibraryInterface.nativeLib.doTheJobNative();
+        return doTheJobNative();
     }
 
     int doTheJobArray(byte[] inputArray, int[] outputArray, int arraySize) {
-        return NativeLibraryInterface.nativeLib.doTheJobArrayNative(inputArray, outputArray, arraySize);
+        return doTheJobArrayNative(inputArray, outputArray, arraySize);
     }
 }
