@@ -15,7 +15,6 @@ public class DoTheJob {
         int doTheJobArrayNative(byte[] inputArray, int[] outputArray, int arraySize);
     }
 
-
     String doTheJob() {
         return NativeLibraryInterface.nativeLib.doTheJobNative();
     }
