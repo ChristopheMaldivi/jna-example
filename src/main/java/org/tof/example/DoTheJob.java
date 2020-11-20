@@ -12,10 +12,15 @@ public class DoTheJob {
         NativeLibraryInterface nativeLib = Native.load("dothejob", NativeLibraryInterface.class);
 
         String doTheJobNative();
+        int doTheJobArrayNative(byte[] inputArray, int[] outputArray, int arraySize);
     }
 
 
     String doTheJob() {
         return NativeLibraryInterface.nativeLib.doTheJobNative();
+    }
+
+    int doTheJobArray(byte[] inputArray, int[] outputArray, int arraySize) {
+        return NativeLibraryInterface.nativeLib.doTheJobArrayNative(inputArray, outputArray, arraySize);
     }
 }
