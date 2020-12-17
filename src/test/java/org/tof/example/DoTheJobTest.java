@@ -56,6 +56,10 @@ class DoTheJobTest {
 
         // then
         then(returnedValue).isEqualTo(arraySize);
+
+        byte[] inputCopyOnJavaHeap = new byte[arraySize];
+        inputByteBuffer.get(inputCopyOnJavaHeap);
+
         int[] outputCopyOnJavaHeap = new int[arraySize];
         // we can not access the direct buffer memory from java so we do a copy on the java heap
         outputByteBuffer.asIntBuffer().get(outputCopyOnJavaHeap);
