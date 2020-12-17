@@ -4,7 +4,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +19,7 @@ class DoTheJobTest {
     @DisplayName("native function call returns 'it works'")
     void native_function_call_returns() {
         // when
-        final String returnedValue = (new DoTheJob()).doTheJob();
+        final String returnedValue = DoTheJob.doTheJobNative();
 
         // then
         then(returnedValue).isEqualTo("it works");
@@ -34,7 +33,7 @@ class DoTheJobTest {
         int arraySize = inputArray.length;
         int[] outputArray = new int[arraySize];
         // when
-        final int returnedValue = (new DoTheJob()).doTheJobArray(inputArray, outputArray, arraySize);
+        final int returnedValue = DoTheJob.doTheJobArrayNative(inputArray, outputArray, arraySize);
 
         // then
         then(returnedValue).isEqualTo(arraySize);
@@ -47,22 +46,21 @@ class DoTheJobTest {
         // given
         int arraySize = 5;
         ByteBuffer inputByteBuffer = ByteBuffer.allocateDirect(arraySize);
-        for(int i=0; i <arraySize; i++) {
+        for (int i = 0; i < arraySize; i++) {
             inputByteBuffer.put(i, (byte) i);
         }
         ByteBuffer outputByteBuffer = ByteBuffer.allocateDirect(arraySize * Integer.BYTES);
         // when
-        final int returnedValue = (new DoTheJob()).doTheJobByteBufferNative(inputByteBuffer, outputByteBuffer, arraySize);
+        final int returnedValue = DoTheJob.doTheJobByteBufferNative(inputByteBuffer, outputByteBuffer, arraySize);
 
         // then
         then(returnedValue).isEqualTo(arraySize);
 
-        byte[] inputCopyOnJavaHeap = new byte[arraySize];
-        inputByteBuffer.get(inputCopyOnJavaHeap);
-
         int[] outputCopyOnJavaHeap = new int[arraySize];
         // we can not access the direct buffer memory from java so we do a copy on the java heap
         outputByteBuffer.asIntBuffer().get(outputCopyOnJavaHeap);
+        // Java is big endian, native x86 code little endian...
+        IntStream.range(0, outputCopyOnJavaHeap.length).forEach(i -> outputCopyOnJavaHeap[i] = Integer.reverseBytes(outputCopyOnJavaHeap[i]));
         then(outputCopyOnJavaHeap).isEqualTo(new int[]{0, 2, 4, 6, 8});
     }
 
@@ -81,7 +79,7 @@ class DoTheJobTest {
         IntStream.range(0, 50).forEach(notUsed -> {
             // when
             Instant t0 = Instant.now();
-            final int returnedValue = (new DoTheJob()).doTheJobArray(inputArray, outputArray, arraySize);
+            final int returnedValue = DoTheJob.doTheJobArrayNative(inputArray, outputArray, arraySize);
             Instant t1 = Instant.now();
             durations.add(diffMicro(t0, t1));
 
