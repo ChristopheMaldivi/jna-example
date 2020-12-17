@@ -3,6 +3,8 @@ package org.tof.example;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +39,27 @@ class DoTheJobTest {
         // then
         then(returnedValue).isEqualTo(arraySize);
         then(outputArray).isEqualTo(new int[]{2, 4, 6, 8, 10});
+    }
+
+    @Test
+    @DisplayName("native function call returns correct output ByteBuffer")
+    void native_function_call_returns_output_ByteBuffer() {
+        // given
+        int arraySize = 5;
+        ByteBuffer inputByteBuffer = ByteBuffer.allocateDirect(arraySize);
+        for(int i=0; i <arraySize; i++) {
+            inputByteBuffer.put(i, (byte) i);
+        }
+        ByteBuffer outputByteBuffer = ByteBuffer.allocateDirect(arraySize * Integer.BYTES);
+        // when
+        final int returnedValue = (new DoTheJob()).doTheJobByteBufferNative(inputByteBuffer, outputByteBuffer, arraySize);
+
+        // then
+        then(returnedValue).isEqualTo(arraySize);
+        int[] outputCopyOnJavaHeap = new int[arraySize];
+        // we can not access the direct buffer memory from java so we do a copy on the java heap
+        outputByteBuffer.asIntBuffer().get(outputCopyOnJavaHeap);
+        then(outputCopyOnJavaHeap).isEqualTo(new int[]{0, 2, 4, 6, 8});
     }
 
 
